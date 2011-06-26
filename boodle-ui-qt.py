@@ -16,6 +16,7 @@
 import sys
 import subprocess
 import os, signal
+import platform
 
 from boopak import collect # you'll need Boodler on Python's library path
 
@@ -49,7 +50,10 @@ for pkgname,_vers in sorted(pkgs):
 
 
 def play(agent):
-    boodler = ["boodler.py", "%s/%s" % agent]
+    if platform.system() == "Linux":
+        boodler = ["boodler.py", "-o", "pulse", "%s/%s" % agent]
+    else:
+        boodler = ["boodler.py", "%s/%s" % agent]
     return boodler
 
 def textplay(agent):
