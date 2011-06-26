@@ -9,13 +9,14 @@
 # Author: Tuukka Hastrup <Tuukka.Hastrup@iki.fi>
 #
 # You should have received a copy of the GNU Library General Public License
-# along with this program. (It should be a document entitled "LGPL".) 
+# along with this program. (It should be a document entitled "LGPL".)
 # If not, see the web URL above, or write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import sys
 import subprocess
 import os, signal
+import platform
 
 from boopak import collect # you'll need Boodler on Python's library path
 
@@ -49,7 +50,13 @@ for pkgname,_vers in sorted(pkgs):
 
 
 def play(agent):
-    boodler = ["boodler.py", "%s/%s" % agent]
+    exec_file = "boodler.py";
+    if os.path.isfile("/usr/local/bin/boodler"):
+        exec_file = "/usr/local/bin/boodler";
+    if (platform.system() == "Linux"):
+        boodler = [exec_file, "-o", "pulse", "%s/%s" % agent]
+    else:
+        boodler = [exec_file, "%s/%s" % agent]
     return boodler
 
 def textplay(agent):
@@ -61,7 +68,7 @@ def textplay(agent):
 
     sys.stdout.flush()
 
-    boodler = subprocess.Popen(play(agent), stdin=subprocess.PIPE, 
+    boodler = subprocess.Popen(play(agent), stdin=subprocess.PIPE,
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     try:
@@ -90,7 +97,7 @@ def qtmain():
                    index.sibling(index.row(), 1).data().toString(),
                    index.sibling(index.row(), 2).data().toString(),
                    )
-        
+
         return rowdata
 
     class Window(QtGui.QWidget):
@@ -148,8 +155,8 @@ def qtmain():
                     QtCore.SIGNAL('textChanged(const QString &)'),
                     self.filterRegExpChanged)
 
-            self.connect(self.proxyView.selectionModel(), 
-                         QtCore.SIGNAL('currentRowChanged(const QModelIndex &, const QModelIndex &)'), 
+            self.connect(self.proxyView.selectionModel(),
+                         QtCore.SIGNAL('currentRowChanged(const QModelIndex &, const QModelIndex &)'),
                          self.itemSelected)
             self.connect(self.proxyView, QtCore.SIGNAL('activated(const QModelIndex &)'), self.itemActivated)
 
@@ -287,7 +294,7 @@ def qtmain():
 
     def createAgentModel(parent):
         model = QtGui.QStandardItemModel(0, 3, parent)
-        
+
         model.setHeaderData(0, QtCore.Qt.Horizontal, QtCore.QVariant("Package"))
         model.setHeaderData(1, QtCore.Qt.Horizontal, QtCore.QVariant("Resource"))
         model.setHeaderData(2, QtCore.Qt.Horizontal, QtCore.QVariant("Title"))
